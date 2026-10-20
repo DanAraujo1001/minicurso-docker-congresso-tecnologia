@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  app:
+    build: ./app-pedidos
+    container_name: cafeteria-app
+    ports:
+      - "8080:3000"
+    environment:
+      - REDIS_HOST=fila
+    depends_on:
+      - fila
+
+  fila:
+    image: redis:alpine
+    container_name: cafeteria-redis
+    ports:
+      - "6379:6379"

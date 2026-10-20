@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Painel de Pedidos - Code & Coffee</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #1e1b18;
+        color: #fdf6e3;
+        text-align: center;
+        padding-top: 30px;
+      }
+      .container {
+        max-width: 500px;
+        margin: 0 auto;
+        background: #2e2825;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+      }
+      input,
+      select {
+        display: block;
+        margin: 15px auto;
+        padding: 10px;
+        width: 80%;
+        border-radius: 5px;
+        border: none;
+      }
+      button {
+        background: #d08770;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        margin: 5px;
+      }
+      button:hover {
+        background: #bf616a;
+      }
+      #mensagem {
+        margin-top: 15px;
+        font-weight: bold;
+        font-size: 0.95rem;
+      }
+      #lista-pedidos {
+        margin-top: 20px;
+        text-align: left;
+        background: #1e1b18;
+        padding: 15px;
+        border-radius: 5px;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+      .pedido-item {
+        border-bottom: 1px solid #444;
+        padding: 8px 0;
+        font-size: 0.9rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>☕ Fila de Pedidos - Code & Coffee</h1>
+    <div class="container">
+      <form id="form-pedido">
+        <label>Seu Nome:</label>
+        <input type="text" id="cliente" required placeholder="Ex: Danilo" />
+
+        <label>Escolha o Café:</label>
+        <select id="cafe">
+          <option value="Expresso">Café Expresso</option>
+          <option value="Cappuccino">Cappuccino</option>
+          <option value="Latte">Café Latte</option>
+        </select>
+
+        <button type="submit">Fazer Pedido</button>
+      </form>
+
+      <!-- Indicador de sucesso/erro -->
+      <div id="mensagem"></div>
+
+      <hr style="border-color: #444; margin: 20px 0" />
+
+      <!-- Botão para listar os pedidos -->
+      <button type="button" onclick="listarPedidos()">
+        Listar Pedidos na Fila
+      </button>
+      <div id="lista-pedidos">Clique no botão acima para ver a fila.</div>
+    </div>
+
+    <script>
+      // Envio do formulário sem recarregar a página (AJAX / Fetch)
+      document
+        .getElementById("form-pedido")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const cliente = document.getElementById("cliente").value;
+          const cafe = document.getElementById("cafe").value;
+
+          const response = await fetch("/pedido", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cliente, cafe }),
+          });
+
+          const resultado = await response.json();
+          const msgDiv = document.getElementById("mensagem");
+
+          if (resultado.success) {
+            msgDiv.style.color = "#a3be8c";
+            msgDiv.innerText = resultado.message;
+            document.getElementById("form-pedido").reset();
+            listarPedidos();
+          } else {
+            msgDiv.style.color = "#bf616a";
+            msgDiv.innerText = resultado.message;
+          }
+        });
+
+      // Função para buscar os pedidos direto do Redis via back-end
+      async function listarPedidos() {
+        const response = await fetch("/pedidos");
+        const pedidos = await response.json();
+        const listaDiv = document.getElementById("lista-pedidos");
+
+        if (pedidos.length === 0) {
+          listaDiv.innerHTML = "A fila de pedidos está vazia.";
+          return;
+        }
+
+        listaDiv.innerHTML = "";
+        pedidos.forEach((p) => {
+          const item = document.createElement("div");
+          item.className = "pedido-item";
+          item.innerHTML = `<span>🛒 <strong>${p.cliente}</strong> pediu um <strong>${p.cafe}</strong></span> <span style="color:#ebcb8b; font-size:0.8rem;">${p.timestamp || ""}</span>`;
+          listaDiv.appendChild(item);
+        });
+      }
+    </script>
+  </body>
+</html>
