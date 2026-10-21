@@ -11,7 +11,13 @@ const redisClient = createClient({
   url: `redis://${redisHost}:6379`,
 });
 
-redisClient.connect().catch(console.error);
+redisClient.on("error", (err) => {
+  console.error("Erro no cliente Redis:", err.message);
+});
+
+redisClient.connect().catch((err) => {
+  console.error("Falha ao conectar inicialmente ao Redis:", err.message);
+});
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
@@ -21,11 +27,17 @@ app.post("/pedido", async (req, res) => {
   try {
     const { cliente, cafe } = req.body;
     const pedidoId = Date.now();
-    const timestamp = new Date().toLocaleTimeString();
+    const timestamp = new Date().toLocaleTimeString("pt-BR", {
+      timeZone: "America/Sao_Paulo",
+    });
 
-    await redisClient.set(
-      `pedido:${pedidoId}`,
-      JSON.stringify({ cliente, cafe, timestamp }),
+    // Força um timeout de 2 segundos caso o Redis esteja offline
+    await comTimeout(
+      redisClient.set(
+        `pedido:${pedidoId}`,
+        JSON.stringify({ cliente, cafe, timestamp }),
+      ),
+      2000,
     );
 
     res.json({
@@ -33,16 +45,17 @@ app.post("/pedido", async (req, res) => {
       message: `Pedido de ${cliente} (${cafe}) adicionado à fila com sucesso! ☕`,
     });
   } catch (err) {
-    console.error(err);
-    res
-      .status(500)
-      .json({ success: false, message: "Erro ao registrar o pedido." });
+    console.error("Erro de conexão com o Redis:", err.message);
+    res.status(500).json({
+      success: false,
+      message: "Erro: A fila de pedidos (Redis) está offline!",
+    });
   }
 });
 
 app.get("/pedidos", async (req, res) => {
   try {
-    const keys = await redisClient.keys("pedido:*");
+    const keys = await comTimeout(redisClient.keys("pedido:*"), 2000);
     const pedidos = [];
 
     for (const key of keys) {
@@ -52,11 +65,26 @@ app.get("/pedidos", async (req, res) => {
 
     res.json(pedidos);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Erro ao buscar pedidos." });
+    console.error("Erro ao buscar no Redis:", err.message);
+    res
+      .status(500)
+      .json({ error: "Erro: Não foi possível conectar ao Redis." });
   }
 });
 
 app.listen(3000, () => {
   console.log("Cafeteria app rodando na porta 3000");
 });
+
+// Função auxiliar de timeout
+const comTimeout = (promessa, tempoMs = 2000) => {
+  return Promise.race([
+    promessa,
+    new Promise((_, reject) =>
+      setTimeout(
+        () => reject(new Error("Timeout: Redis demorou muito para responder")),
+        tempoMs,
+      ),
+    ),
+  ]);
+};
