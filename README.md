@@ -1,37 +1,27 @@
-- docker --version
-- docker info
-- docker ps
-
-docker run -d -p 8080:80 --name balcao-cafeteria nginx:alpine
-
-docker ps
-
-docker stop balcao-cafeteria
-
-docker rm balcao-cafeteria
-
-docker images
-
-docker build -t cafeteria-iniciante:1.0 .
-
-docker run -d -p 8080:80 --name cafe-rodando cafeteria-iniciante:1.0
-
-docker compose up -d
-
-docker exec -it cafeteria-fila redis-cli
-
-PING
-
-Salvar um dado: SET chave "valor"
-
-Ler um dado: GET chave
-
-Verificar se existe: EXISTS chave
-
-Apagar o pedido: DEL pedido:01
-
-Sair do painel do Redis: Digite exit
-
-docker compose up --build -d
-
-docker compose up -d
+<img src="./images-readme/1.png" alt="Texto Alternativo">
+<img src="./images-readme/2.png" alt="Texto Alternativo">
+<img src="./images-readme/3.png" alt="Texto Alternativo">
+<img src="./images-readme/4.png" alt="Texto Alternativo">
+<img src="./images-readme/5.png" alt="Texto Alternativo">
+<img src="./images-readme/6.png" alt="Texto Alternativo">
+<img src="./images-readme/7.png" alt="Texto Alternativo">
+<img src="./images-readme/8.png" alt="Texto Alternativo">
+<img src="./images-readme/9.png" alt="Texto Alternativo">
+<img src="./images-readme/10.png" alt="Texto Alternativo">
+<img src="./images-readme/11.png" alt="Texto Alternativo">
+<img src="./images-readme/12.png" alt="Texto Alternativo">
+<img src="./images-readme/13.png" alt="Texto Alternativo">
+<img src="./images-readme/14.png" alt="Texto Alternativo">
+<img src="./images-readme/15.png" alt="Texto Alternativo">
+<img src="./images-readme/16.png" alt="Texto Alternativo">
+<img src="./images-readme/17.png" alt="Texto Alternativo">
+<img src="./images-readme/18.png" alt="Texto Alternativo">
+<img src="./images-readme/19.png" alt="Texto Alternativo">
+<img src="./images-readme/20.png" alt="Texto Alternativo">
+<img src="./images-readme/21.png" alt="Texto Alternativo">
+<img src="./images-readme/22.png" alt="Texto Alternativo">
+<img src="./images-readme/23.png" alt="Texto Alternativo">
+<img src="./images-readme/24.png" alt="Texto Alternativo">
+<img src="./images-readme/25.png" alt="Texto Alternativo">
+<img src="./images-readme/26.png" alt="Texto Alternativo">
+<img src="./images-readme/27.png" alt="Texto Alternativo">
